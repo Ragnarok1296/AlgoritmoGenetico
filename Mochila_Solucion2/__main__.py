@@ -199,39 +199,35 @@ def mutacion():
                 elif hijos[i][j] == "1":
                     hijos[i] = hijos[i][:j] + "0" + hijos[i][j + 1:]
 
-
     # Aqui se va a igualar los nuevos hijos a la poblacion de la nueva generacion, esto va al final de la mutacion
     individuos = hijos
 
-    evaluacion()
-
     # Obtenemos el mejor hijo hasta el momento
     hijosAux = hijos.copy()
-    obtenerMejorHijo(hijosAux)
+    obtenerMejorHijo()
 
 
-def obtenerMejorHijo(listaux): # Obtiene el mejor hijo del arreglo dado
+def obtenerMejorHijo(): # Obtiene el mejor hijo del arreglo dado
     global x, fx, mejorGanancia, mejorPeso, mejoresHijos
     x = []
     fx = []
 
     # Se llenasn las sdos listas para ver cual hijo es mejor en funcion de f(x)
-    for i in range(0, len(listaux)):
+    for i in range(0, len(individuos)):
         # Se obtiene el peso y ganancia
-        ganancia = 0
-        peso = 0
-        for j in range(0, len(optimal_selection)):
-            ganancia += (int(listaux[i][j]) * int(profits[j]))
-            peso += (int(listaux[i][j]) * int(weights[j]))
+        ganancia = funcionObjetivo(i)
+        peso = obtenerPeso(i)
 
         # Se llenan los arrays de peso(x) y el de ganancia(fx)
         x.append(peso)
         fx.append(ganancia)
 
+    evaluacion()
+
     # Se comparan los hijos de la generacion con el mejor hijo de la generacion anterior
-    for i in range(0,len(listaux)):
-        if int(fx[i]) > int(mejorGanancia) and int(x[i]) <= capacity:
-            mejoresHijos = listaux[i]
+    for i in range(0, len(individuos)):
+        if int(fx[i]) > int(mejorGanancia):
+            mejoresHijos = individuos[i]
             mejorGanancia = fx[i]
             mejorPeso = x[i]
 
@@ -248,21 +244,24 @@ def solucion(): # Se muestra la solucion
 
 def evaluacion(): # Evalua al individuo para ver si es valido o no
     for i in range(0, numPoblacion):
-        if obtenerPeso(i) > capacity:
+        if x[i] > capacity:
             tratamiento(i)
 
 
 def tratamiento(i): # Se realiza la penalizacion
 
-    # Se obtiene el peso y la ganancia del individuo
-    peso = obtenerPeso(i)
-    ganancia = funcionObjetivo(i)
-
     # Se saca la penalizacion
-    pen = p * (peso - capacity)
+    pen = 0
+    for j in range(0, len(optimal_selection)):
+        pen += p * ((int(individuos[i][j]) * int(profits[j])) - int(capacity))
+
+    # Se penalizan los objetos
+    aux = 0
+    for j in range(0, len(optimal_selection)):
+        aux += (int(individuos[i][j]) * int(profits[j])) - pen
 
     # Se le asigna la nueva ganancia al individuo
-    fx[i] = ganancia - pen
+    fx[i] = aux
 
 
 if __name__ == '__main__':
