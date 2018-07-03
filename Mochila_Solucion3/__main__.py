@@ -4,7 +4,7 @@ from random import random
 
 
 def capturaDeDatos(): # Se capturan los datos importantes
-    global numPoblacion, generaciones, probCruce, probMutacion, capacity, optimal_selection, profits, weights, p
+    global numPoblacion, generaciones, probCruce, probMutacion, capacity, optimal_selection, profits, weights
 
     # Numero de individuos que tendra la poblacion
     numPoblacion = int(input("Ingrese el numero de la poblacion: "))
@@ -49,22 +49,11 @@ def capturaDeDatos(): # Se capturan los datos importantes
         for row in file:
             optimal_selection.append(row)
 
-    #Obtenemos p , se hace aqui ya que solo se necesiat sacar una vez
-    for i in range(0,len(optimal_selection)):
-        aux = int(profits[i]) / int(weights[i])
-        if aux > p :
-            p = aux
-
 
 def inicializacion():  # Inicialiacion de la poblacion
     for i in range(0, numPoblacion):
         # Se genera el individuo para poder anexarlo al array individuos
         individuos.append(generarIndividuo())
-        # Se convierte en decimal el valor binario
-        x.append(obtenerPeso(i))
-
-        # Se manda llamar al metodo de funcionObjetivo que devuelve el resultado esperado de fx
-        fx.append(funcionObjetivo(i))
 
 
 def generarIndividuo():  # Genera la cadena binaria de los individuos
@@ -130,7 +119,7 @@ def funcionObjetivo(individuo): # Metodo que regresa el resultado de la funcion 
     return ganancia
 
 
-def obtenerPeso(individuo): # Metodo que regresa el peso total de un individuo
+def obtenerPeso(individuo):
     peso = 0
     for i in range(0, len(optimal_selection)):
         peso += (int(individuos[individuo][i]) * int(weights[i]))
@@ -198,35 +187,38 @@ def mutacion():
                 elif hijos[i][j] == "1":
                     hijos[i] = hijos[i][:j] + "0" + hijos[i][j + 1:]
 
+
     # Aqui se va a igualar los nuevos hijos a la poblacion de la nueva generacion, esto va al final de la mutacion
     individuos = hijos
 
-    # Obtenemos el mejor hijo hasta el momento
+    evaluacion()
+
+    # Ordenamos de tal forma que se obtenga el mejor hijo y se lo agrgamos al array de mejoresHijos
     hijosAux = hijos.copy()
-    obtenerMejorHijo()
+
+    obtenerMejorHijo(hijosAux)
 
 
-def obtenerMejorHijo(): # Obtiene el mejor hijo del arreglo dado
+def obtenerMejorHijo(listaux): # Obtiene el mejor hijo del arreglo dado
     global x, fx, mejorGanancia, mejorPeso, mejoresHijos
     x = []
     fx = []
 
     # Se llenasn las sdos listas para ver cual hijo es mejor en funcion de f(x)
-    for i in range(0, len(individuos)):
+    for i in range(0, len(listaux)):
         # Se obtiene el peso y ganancia
-        ganancia = funcionObjetivo(i)
-        peso = obtenerPeso(i)
+        ganancia = 0
+        peso = 0
+        for j in range(0, len(optimal_selection)):
+            ganancia += (int(listaux[i][j]) * int(profits[j]))
+            peso += (int(listaux[i][j]) * int(weights[j]))
 
-        # Se llenan los arrays de peso(x) y el de ganancia(fx)
         x.append(peso)
         fx.append(ganancia)
 
-    evaluacion()
-
-    # Se comparan los hijos de la generacion con el mejor hijo de la generacion anterior
-    for i in range(0, len(individuos)):
-        if int(fx[i]) > int(mejorGanancia) and x[i] < capacity:
-            mejoresHijos = individuos[i]
+    for i in range(0,len(listaux)):
+        if int(fx[i]) > int(mejorGanancia):
+            mejoresHijos = listaux[i]
             mejorGanancia = fx[i]
             mejorPeso = x[i]
 
@@ -234,6 +226,7 @@ def obtenerMejorHijo(): # Obtiene el mejor hijo del arreglo dado
 def solucion(): # Se muestra la solucion
     print("\nSeleccion optima:")
     print("\nCadena:", mejoresHijos, "\n")
+
     for i in range(0, len(optimal_selection)):
         if mejoresHijos[i] == '1':
             print("Objeto", i + 1, "\n Ganancia:", profits[i], "Peso:", weights[i])
@@ -241,30 +234,21 @@ def solucion(): # Se muestra la solucion
     print("\nEl peso total es:", mejorPeso, "\nLa ganancia total es:", mejorGanancia)
 
 
-def evaluacion(): # Evalua al individuo para ver si es valido o no
+def evaluacion():
+    knapsack_overfield = False
     for i in range(0, numPoblacion):
-        if x[i] > capacity:
-            tratamiento(i)
+        if obtenerPeso(i) > capacity:
+            knapsack_overfield = True
 
+        while (knapsack_overfield):
+            j = randint(0, len(optimal_selection))
+            individuos[i] = individuos[i][:j] + "0" + individuos[i][j+1:]
+            if obtenerPeso(i) < capacity:
+                knapsack_overfield = False
 
-def tratamiento(i): # Se realiza la penalizacion
-
-    # Se saca la penalizacion
-    pen = 0
-    for j in range(0, len(optimal_selection)):
-        pen += p * ((int(individuos[i][j]) * int(profits[j])) - int(capacity))
-
-    # Se penalizan los objetos
-    aux = 0
-    for j in range(0, len(optimal_selection)):
-        aux += (int(individuos[i][j]) * int(profits[j])) - pen
-
-    # Se le asigna la nueva ganancia al individuo
-    fx[i] = aux
 
 
 if __name__ == '__main__':
-
     # Inicializacion de Variables globales
     individuos = []
     x = []
@@ -274,8 +258,9 @@ if __name__ == '__main__':
     aleatorios = []
     padresPosicion = []
     padres = []
-
-    p = 0
+    mejoresHijos = "00000000"
+    mejorGanancia = "0"
+    mejorPeso = 0
     hijosAux = []
 
     capacity = 0
@@ -285,10 +270,6 @@ if __name__ == '__main__':
 
     # Funcion para pedir datos
     capturaDeDatos()
-
-    mejoresHijos = "0" * len(optimal_selection)
-    mejorGanancia = "0"
-    mejorPeso = 0
 
     # Se inicializa la primera generacion
     inicializacion()
