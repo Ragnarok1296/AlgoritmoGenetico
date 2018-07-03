@@ -225,7 +225,11 @@ def obtenerMejorHijo(): # Obtiene el mejor hijo del arreglo dado
 
     # Se comparan los hijos de la generacion con el mejor hijo de la generacion anterior
     for i in range(0, len(individuos)):
+<<<<<<< HEAD
         if int(fx[i]) > int(mejorGanancia) and x[i] < capacity:
+=======
+        if int(fx[i]) >= int(mejorGanancia) and x[i] <= capacity:
+>>>>>>> 8f69a31a2630bd674e6f861d04da6250b0fde59b
             mejoresHijos = individuos[i]
             mejorGanancia = fx[i]
             mejorPeso = x[i]
@@ -252,7 +256,7 @@ def tratamiento(i): # Se realiza la penalizacion
     # Se saca la penalizacion
     pen = 0
     for j in range(0, len(optimal_selection)):
-        pen += p * ((int(individuos[i][j]) * int(profits[j])) - int(capacity))
+        pen += p * ((int(individuos[i][j]) * int(weights[j])) - int(capacity))
 
     # Se penalizan los objetos
     aux = 0
