@@ -1,11 +1,11 @@
 import sys
 from random import randint
 from random import random
-from time import  time
+from time import time
 
 
 def capturaDeDatos(): # Se capturan los datos importantes
-    global numPoblacion, generaciones, probCruce, probMutacion, capacity, optimal_selection, profits, weights
+    global numPoblacion, generaciones, probCruce, probMutacion, capacity, optimal_selection, profits, weights, p
 
     # Numero de individuos que tendra la poblacion
     numPoblacion = 100;
@@ -53,6 +53,12 @@ def capturaDeDatos(): # Se capturan los datos importantes
     with open('optimal-selection.txt', 'r') as file:
         for row in file:
             optimal_selection.append(row)
+
+    # Obtenemos p , se hace aqui ya que solo se necesiat sacar una vez
+    for i in range(0, len(optimal_selection)):
+        aux = int(profits[i]) / int(weights[i])
+        if aux > p:
+            p = aux
 
 
 def inicializacion():  # Inicialiacion de la poblacion
@@ -248,8 +254,10 @@ def evaluacion():
         while (knapsack_overfield):
 
             # Se inician las variables auxiliares
-            posicion_reparar = 0
-            aux = 0
+            posicion_reparar_prendido = 0
+            posicion_reparar_apagado = 0
+            aux_prendido = 0
+            aux_apagado = p
 
             # Se inicia un ciclo para que se vaya comparando los valores y encontrar el mejor resultado entre ganancia/peso
             for j in range(0,len(optimal_selection)):
@@ -258,21 +266,31 @@ def evaluacion():
                 x = float(profits[j])/float(weights[j])
 
                 # Si el valor anterior es mayo al auxiliar y esta en la mochila del individuo se hace lo siguiente
-                if (x > aux) and (individuos[i][j] == "1"):
-
+                if (x > aux_prendido) and (individuos[i][j] == "1"):
                     # Se actualiza el valor mayor
-                    aux = x
-
+                    aux_prendido = x
                     #Se guarda la posicion del vlor mayor
-                    posicion_reparar = j
+                    posicion_reparar_prendido = j
+
+                # Si el valor anterior es menor al auxiliar y esta en la mochila del individuo se hace lo siguiente
+                if (x < aux_apagado) and (individuos[i][j] == "0"):
+                    # Se actualiza el valor mayor
+                    aux_apagado = x
+                    # Se guarda la posicion del valor mayor
+                    posicion_reparar_apagado = j
+
 
             # Se vuelve 0 el valor mayor
-            individuos[i] = individuos[i][:posicion_reparar] + "0" + individuos[i][posicion_reparar+1:]
+            if aux_apagado >= aux_prendido:
+                individuos[i] = individuos[i][:posicion_reparar_prendido] + "0" + individuos[i][posicion_reparar_prendido + 1:]
+            elif aux_apagado < aux_prendido:
+                individuos[i] = individuos[i][:posicion_reparar_prendido] + "0" + individuos[i][posicion_reparar_prendido + 1:]
+                individuos[i] = individuos[i][:posicion_reparar_apagado] + "1" + individuos[i][posicion_reparar_apagado + 1:]
+
 
             # Si la mochila del individuo no ha sobrepasado su capacidad, se termina el ciclo
             if obtenerPeso(i) < capacity:
                 knapsack_overfield = False
-
 
 
 if __name__ == '__main__':
@@ -292,6 +310,7 @@ if __name__ == '__main__':
     mejorGanancia = "0"
     mejorPeso = 0
     hijosAux = []
+    p = 0
 
     capacity = 0
     optimal_selection = []
@@ -333,4 +352,5 @@ if __name__ == '__main__':
     tiempo_final = time()
     tiempo_ejecucion = tiempo_final - tiempo_inicio
     print("\nTiempo total de ejecucion:", tiempo_ejecucion, "segundos")
+
 

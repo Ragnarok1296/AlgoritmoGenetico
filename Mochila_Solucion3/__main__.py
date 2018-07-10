@@ -1,34 +1,39 @@
 import sys
 from random import randint
 from random import random
+from time import time
 
 
 def capturaDeDatos(): # Se capturan los datos importantes
     global numPoblacion, generaciones, probCruce, probMutacion, capacity, optimal_selection, profits, weights
 
     # Numero de individuos que tendra la poblacion
-    numPoblacion = int(input("Ingrese el numero de la poblacion: "))
+    numPoblacion = 100;
+    """ numPoblacion = int(input("Ingrese el numero de la poblacion: "))
     while numPoblacion % 2 != 0 or numPoblacion < 2:
         print("Ingrese un numero de poblacion par\n")
-        numPoblacion = int(input("Ingrese el numero de la poblacion: "))
+        numPoblacion = int(input("Ingrese el numero de la poblacion: ")) """
 
     # Numero de genraciones (iteraciones)
-    generaciones = int(input("Ingrese el numero de generaciones: "))
+    generaciones = 500
+    """ generaciones = int(input("Ingrese el numero de generaciones: "))
     while generaciones < 1:
         print("Ingrese un numero positivo mayor a 0\n")
-        generaciones = int(input("Ingrese el numero de generaciones: "))
+        generaciones = int(input("Ingrese el numero de generaciones: ")) """
 
     # La probabilidad de cruce
-    probCruce = float(input("Ingrese probabilidad de cruce (entre 0.65 y 0.80): "))
+    probCruce = 0.65
+    """ probCruce = float(input("Ingrese probabilidad de cruce (entre 0.65 y 0.80): "))
     while probCruce < 0.65 or probCruce > 0.80:
         print("Ingrese un valor entre 0.65 y 0.80\n")
-        probCruce = float(input("Ingrese probabilidad de cruce (entre 0.65 y 0.80): "))
+        probCruce = float(input("Ingrese probabilidad de cruce (entre 0.65 y 0.80): ")) """
 
     # La probabilidad de mutacion
-    probMutacion = float(input("Ingrese probabilidad de mutacion (entre 0.001 y 0.01): "))
+    probMutacion = 0.01
+    """ probMutacion = float(input("Ingrese probabilidad de mutacion (entre 0.001 y 0.01): "))
     while probMutacion < 0.001 or probMutacion > 0.01:
         print("Ingrese un valor entre 0.001 y 0.01\n")
-        probMutacion = float(input("Ingrese probabilidad de mutacion (entre 0.001 y 0.01): "))
+        probMutacion = float(input("Ingrese probabilidad de mutacion (entre 0.001 y 0.01): ")) """
 
     # Obtenemos la capacidad de la mochila
     with open('knapsack-capacity.txt', 'r') as file:
@@ -249,6 +254,9 @@ def evaluacion():
 
 
 if __name__ == '__main__':
+
+    tiempo_inicio = time()
+
     # Inicializacion de Variables globales
     individuos = []
     x = []
@@ -299,4 +307,8 @@ if __name__ == '__main__':
 
     # Muestra la solucion
     solucion()
+
+    tiempo_final = time()
+    tiempo_ejecucion = tiempo_final - tiempo_inicio
+    print("\nTiempo total de ejecucion:", tiempo_ejecucion, "segundos")
 
