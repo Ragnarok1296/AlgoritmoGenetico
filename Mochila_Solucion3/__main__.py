@@ -120,14 +120,14 @@ def seleccion():  # Seleccion de padres y generacion de valores para la tabla
 def funcionObjetivo(individuo): # Metodo que regresa el resultado de la funcion objetivo para guardarlo en el array fx
     ganancia = 0
     for i in range(0, len(optimal_selection)):
-        ganancia += (int(individuos[individuo][i]) * int(profits[i]))
+        ganancia += (int(individuos[individuo][i]) * float(profits[i]))
     return ganancia
 
 
 def obtenerPeso(individuo):
     peso = 0
     for i in range(0, len(optimal_selection)):
-        peso += (int(individuos[individuo][i]) * int(weights[i]))
+        peso += (int(individuos[individuo][i]) * float(weights[i]))
     return peso
 
 
@@ -215,14 +215,14 @@ def obtenerMejorHijo(listaux): # Obtiene el mejor hijo del arreglo dado
         ganancia = 0
         peso = 0
         for j in range(0, len(optimal_selection)):
-            ganancia += (int(listaux[i][j]) * int(profits[j]))
-            peso += (int(listaux[i][j]) * int(weights[j]))
+            ganancia += (int(listaux[i][j]) * float(profits[j]))
+            peso += (int(listaux[i][j]) * float(weights[j]))
 
         x.append(peso)
         fx.append(ganancia)
 
     for i in range(0,len(listaux)):
-        if int(fx[i]) > int(mejorGanancia):
+        if float(fx[i]) > float(mejorGanancia):
             mejoresHijos = listaux[i]
             mejorGanancia = fx[i]
             mejorPeso = x[i]
@@ -290,9 +290,11 @@ if __name__ == '__main__':
         # En cada generacion se resetean las sumatorias y los arreglos
         x = []
         fx = []
+
         fnorm = []
         acumulado = []
         aleatorios = []
+
         padresPosicion = []
         padres = []
         hijos = []
